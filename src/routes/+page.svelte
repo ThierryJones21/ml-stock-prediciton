@@ -104,16 +104,26 @@
 
 			// Predict future prices
 			const future_prices = [];
-			let X_extend = X.slice(X.shape[0] - 1).clone();
+			
+			// Get the last element of X along the first axis
+			const lastIndex = X.shape[0] - 1;
+			let X_extend = tf.slice(X, [lastIndex, 0, 0], [1, X.shape[1], X.shape[2]]);
+
+			console.log("XEXTEND", X_extend)
+
 			for (let i = 0; i < future_days; i++) {
-				const future_price = model.predict(X_extend);
-				const future_price_array = future_price.arraySync();
+				//predict the future price 
+				const future_price_tensor = model.predict(X_extend);
+				const future_price_array = future_price_tensor.arraySync();
 				const future_price_actual = future_price_array.map(value => value * (scaler.maxValue - scaler.minValue) + scaler.minValue);
+
+				//add new future price to list
 				future_prices.push(future_price_actual);
 
-				// Update X_extend for the next prediction
-				const new_input = future_price_actual.slice(-1)[0]; // Get the last predicted price
-				X_extend = tf.tensor([...X_extend.arraySync()[0].slice(1), new_input]).reshape([1, X_extend.shape[1], 1]);
+				//add new input as teh prediction array of the last model.predict and add to X_extend
+				const updatedInput = [...X_extend.arraySync()[0].slice(1), future_price_array];
+
+				X_extend = tf.tensor(updatedInput).reshape([1, X_extend.shape[1], 1]);
 			}
 
 			let future_dates_gen = generateDateRange(new Date(dates[0]), future_days);
@@ -149,8 +159,6 @@
 		return dates;
 	}
   
-
-	//  IS WORKING NOW PROPERLY
 	async function preprocessData(data) {
 		const closingPrices = data.map(day => day.close);
 
@@ -195,17 +203,27 @@
 			chartInstance.destroy();
 		}
 		const ctx = document.getElementById('myChart');
-
+		// current dates selected
 		const DataDates = data.map(entry => entry.date).reverse();
-		console.log("LEN DataDates:" , DataDates)
 		const DataActualPrices = data.map(entry => entry.actualPrice).reverse();
-		console.log("LEN DataActualPrices:" , DataActualPrices)
 		const DataPredictedPrices = data.map(entry => entry.predictedPrice).reverse();
-		console.log("LEN DataPredictedPrices:" , DataPredictedPrices)
+
+		console.log("DATA: " , DataDates, DataActualPrices, DataPredictedPrices)
+
+		//future dates selected
+		const FutureDataDates = futureData.map(entry => entry.date);
+		const FutureDataPredictedPrices = futureData.map(entry => entry.predictedPrice);
+		console.log("FutureData: " , FutureDataDates, FutureDataPredictedPrices)
+
+		const allPredictedPrices = [...DataPredictedPrices, ...FutureDataPredictedPrices];
+
+
+		
+
 		chartInstance = new Chart(ctx, {
 			type: 'line',
 			data: {
-				labels: DataDates,
+				labels: [...DataDates, ...FutureDataDates],
 				datasets: [
 					{
 						label: 'Actual Price',
@@ -218,29 +236,21 @@
 						data: DataPredictedPrices,
 						borderColor: 'rgba(255, 99, 132, 1)',
 						tension: 0.1
+					},
+					{
+						label: 'Future Predicted Price',
+						data: allPredictedPrices,
+						borderColor: 'rgba(54, 162, 235, 1)', // Choose your own color
+						tension: 0.1
 					}
-					// },
-					// {
-					// 	label: 'Future Predicted Price',
-					// 	data: [...FuturePrices, ...Array(futureData.length).fill(null)],
-					// 	borderColor: 'rgba(54, 162, 235, 1)', // Choose your own color
-					// 	tension: 0.1
-					// }
 				]
 			}
 		});
 	}
-
-
-
-
-
 </script>
   
 <section>
-	<h1>
-			Stock Prediction
-	</h1>
+	<h1>Stock Prediction</h1>
 	
 	<div>
 		<label for="symbol">Stock Symbol:</label>

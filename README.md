@@ -1,38 +1,27 @@
-# create-svelte
+# Stock Prediction Project
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+This project uses machine learning to predict stock prices based on historical data. It includes functionality to fetch stock data from an API, preprocess it, train a TensorFlow.js model, and visualize the results using Chart.js.
 
-## Creating a project
+## Usage
 
-If you're seeing this, you've probably already done this step. Congrats!
+To use this project, follow these steps:
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+1. Clone the repository to your local machine.
+2. Install dependencies by running `npm install`.
+3. Run the project using `npm start`.
+4. Enter the stock symbol, start date, end date, and the number of future days to predict.
+5. Click the "Predict Stock Price" button to see the predictions.
+6. View the charts and tables to analyze the results.
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+## Technologies Used
 
-## Developing
+- Svelte: Frontend framework for building interactive web applications.
+- TensorFlow.js: Machine learning library for training and deploying models in JavaScript.
+- Chart.js: JavaScript library for creating interactive charts and graphs.
+- Node.js: JavaScript runtime for running JavaScript code outside of a web browser.
+- Git and GitHub: Version control and hosting platform for collaborating on code.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Folder Structure
 
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+- `/src`: Contains the source code for the project.
+- `/public`: Contains static assets like images and HTML files.

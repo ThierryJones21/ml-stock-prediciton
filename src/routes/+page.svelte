@@ -15,8 +15,8 @@
 	let options;
 	let loading = false;
 	let chartData;
-	let symbol = 'AAPL'; // Default stock symbol
-	let start_date = '2023-10-01'; // Default start date
+	let symbol = 'ORCL'; // Default stock symbol
+	let start_date = '2023-09-10'; // Default start date
 	let end_date = '2024-02-01'; // Default end date
 	let future_days = 7; // Default number of future days to predict
 
@@ -191,40 +191,49 @@
 	}
 
 	function updateChart() {
-    if (chartInstance) {
-        chartInstance.destroy();
-    }
+		if (chartInstance) {
+			chartInstance.destroy();
+		}
 		const ctx = document.getElementById('myChart');
-		const futureDates = futureData.map(entry => entry.date);
-		const reversedFutureDates = futureDates.slice().reverse(); // Copy and reverse the array
-		const futurePrices = futureData.map(entry => entry.predictedPrice);
+
+		const DataDates = data.map(entry => entry.date).reverse();
+		console.log("LEN DataDates:" , DataDates)
+		const DataActualPrices = data.map(entry => entry.actualPrice).reverse();
+		console.log("LEN DataActualPrices:" , DataActualPrices)
+		const DataPredictedPrices = data.map(entry => entry.predictedPrice).reverse();
+		console.log("LEN DataPredictedPrices:" , DataPredictedPrices)
 		chartInstance = new Chart(ctx, {
 			type: 'line',
 			data: {
-				labels: [...data.map(entry => entry.date), ...reversedFutureDates],
+				labels: DataDates,
 				datasets: [
 					{
 						label: 'Actual Price',
-						data: [...data.map(entry => entry.actualPrice), ...Array(futureData.length).fill(null)],
+						data: DataActualPrices,
 						borderColor: 'rgba(75, 192, 192, 1)',
 						tension: 0.1
 					},
 					{
 						label: 'Predicted Price',
-						data: [...data.map(entry => entry.predictedPrice), ...Array(futureData.length).fill(null)],
+						data: DataPredictedPrices,
 						borderColor: 'rgba(255, 99, 132, 1)',
 						tension: 0.1
-					},
-					{
-						label: 'Future Predicted Price',
-						data: [...Array(data.length).fill(null), ...futurePrices],
-						borderColor: 'rgba(54, 162, 235, 1)', // Choose your own color
-						tension: 0.1
 					}
+					// },
+					// {
+					// 	label: 'Future Predicted Price',
+					// 	data: [...FuturePrices, ...Array(futureData.length).fill(null)],
+					// 	borderColor: 'rgba(54, 162, 235, 1)', // Choose your own color
+					// 	tension: 0.1
+					// }
 				]
 			}
 		});
 	}
+
+
+
+
 
 </script>
   
@@ -313,14 +322,6 @@
 
 	h1 {
 		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
 	}
 
 	/* CSS for tables container */

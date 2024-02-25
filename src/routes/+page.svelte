@@ -6,9 +6,62 @@
 	import { onMount } from 'svelte';
 	import * as tf from '@tensorflow/tfjs';
 	import { getStockData } from '$lib/stock-api'; 
-	const modelPath = '/tensorflow/model/model.json';
+	const modelPath = '/tensorflow/model_v2/model.json';
 	
 	let chartInstance;
+
+	let stock_symbols = [
+        { symbol: 'MSFT', name: 'Microsoft Corporation' },
+        { symbol: 'AAPL', name: 'Apple Inc' },
+        { symbol: 'NVDA', name: 'NVIDIA Corporation' },
+        { symbol: 'AMZN', name: 'Amazon.com, Inc.' },
+        { symbol: 'META', name: 'Meta Platforms, Inc.' },
+        { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+        { symbol: 'GOOG', name: 'Alphabet Inc.' },
+        { symbol: 'BRK.B', name: 'Berkshire Hathaway Inc.' },
+        { symbol: 'TSLA', name: 'Tesla, Inc.' },
+        { symbol: 'AVGO', name: 'Broadcom Inc.' },
+        { symbol: 'LLY', name: 'Eli Lilly and Company' },
+        { symbol: 'JPM', name: 'JPMorgan Chase & Co.' },
+        { symbol: 'UNH', name: 'UnitedHealth Group Incorporated' },
+        { symbol: 'V', name: 'Visa Inc.' },
+        { symbol: 'XOM', name: 'Exxon Mobil Corporation' },
+        { symbol: 'JNJ', name: 'Johnson & Johnson' },
+        { symbol: 'MA', name: 'Mastercard Incorporated' },
+        { symbol: 'PG', name: 'The Procter & Gamble Company' },
+        { symbol: 'HD', name: 'The Home Depot, Inc.' },
+        { symbol: 'COST', name: 'Costco Wholesale Corporation' },
+        { symbol: 'MRK', name: 'Merck & Co., Inc.' },
+        { symbol: 'ABBV', name: 'AbbVie Inc.' },
+        { symbol: 'ADBE', name: 'Adobe Inc.' },
+        { symbol: 'CRM', name: 'Salesforce, Inc.' },
+        { symbol: 'AMD', name: 'Advanced Micro Devices, Inc.' },
+        { symbol: 'CVX', name: 'Chevron Corporation' },
+        { symbol: 'NFLX', name: 'Netflix, Inc.' },
+        { symbol: 'WMT', name: 'Walmart Inc.' },
+        { symbol: 'BAC', name: 'Bank of America Corporation' },
+        { symbol: 'PEP', name: 'PepsiCo, Inc.' },
+        { symbol: 'KO', name: 'The Coca-Cola Company' },
+        { symbol: 'ACN', name: 'Accenture plc' },
+        { symbol: 'MCD', name: 'McDonald\'s Corporation' },
+        { symbol: 'TMO', name: 'Thermo Fisher Scientific Inc.' },
+        { symbol: 'CSCO', name: 'Cisco Systems, Inc.' },
+        { symbol: 'ABT', name: 'Abbott Laboratories' },
+        { symbol: 'LIN', name: 'Linde plc' },
+        { symbol: 'CMCSA', name: 'Comcast Corporation' },
+        { symbol: 'WFC', name: 'Wells Fargo & Company' },
+        { symbol: 'INTC', name: 'Intel Corporation' },
+        { symbol: 'VZ', name: 'Verizon Communications Inc.' },
+        { symbol: 'ORCL', name: 'Oracle Corporation' },
+        { symbol: 'INTU', name: 'Intuit Inc.' },
+        { symbol: 'DIS', name: 'The Walt Disney Company' },
+        { symbol: 'AMGN', name: 'Amgen Inc.' },
+        { symbol: 'IBM', name: 'International Business Machines Corporation' },
+        { symbol: 'QCOM', name: 'QUALCOMM Incorporated' },
+        { symbol: 'DHR', name: 'Danaher Corporation' },
+        { symbol: 'NOW', name: 'ServiceNow, Inc.' },
+        { symbol: 'CAT', name: 'Caterpillar Inc.' }
+    ];
 
 	let Chart_Apex;
 	let model;
@@ -72,10 +125,10 @@
 			X = tf.tensor(X);
 			X = X.reshape([X.shape[0],X.shape[1], 1]);
 
-			console.log(X)
+			console.log("X after reshape:", X)
 			// Predict using the trained model
 			const y_pred = model.predict(X);
-			console.log(y_pred)
+			console.log("Y predict:", y_pred)
 
 			// Inverse transform the predicted and actual values
 			// Inverse transform the predicted and actual values
@@ -83,9 +136,9 @@
 
 			const y_pred_array = y_pred.arraySync();
 			const y_pred_actual = y_pred_array.map(value => value * (scaler.maxValue - scaler.minValue) + scaler.minValue);
-			console.log(y_actual)
-			console.log(y_pred_actual)
-			console.log(dates)
+			// console.log(y_actual)
+			// console.log(y_pred_actual)
+			// console.log(dates)
 
 
 			// Combine actual and predicted prices with their corresponding dates
@@ -98,16 +151,18 @@
 					newData.push({ date, actualPrice: actual, predictedPrice: predicted });
 				}
 			}
-
+			//update data for chart and table
 			data = newData;
-			console.log(newData);
 
 			// Predict future prices
 			const future_prices = [];
-			
 			// Get the last element of X along the first axis
 			const lastIndex = X.shape[0] - 1;
+			console.log("LAST INDEX:", X.arraySync())
 			let X_extend = tf.slice(X, [lastIndex, 0, 0], [1, X.shape[1], X.shape[2]]);
+			
+			// console.log("y_actual array", y_actual.reverse())
+			// let X_extend = tf.tensor([[[y_actual[y_actual.length - 1]]]]);
 
 			console.log("XEXTEND", X_extend)
 
@@ -136,12 +191,8 @@
 			}));
 
 			futureData = newfutureData;
-
-			// Display table
-			console.log(futureData);
 			// Call the function to update chart data
 			updateChart();
-
 		} catch (error) {
 			console.error('Error predicting stock prices:', error);
 		} finally {
@@ -161,15 +212,11 @@
   
 	async function preprocessData(data) {
 		const closingPrices = data.map(day => day.close);
-
-		// console.table(closingPrices)
 		// Calculate min and max values
 		const minValue = Math.min(...closingPrices);
 		const maxValue = Math.max(...closingPrices);
-		
 		// Normalize the data
 		const scaledData = closingPrices.map(price => [(price - minValue) / (maxValue - minValue)]);
-
 		const dates = data.map(day => day.date);
 		return {
 			scaled_data: scaledData,
@@ -181,10 +228,8 @@
 	function createSequences(data, seq_length) {
 		const X = [];
 		const y = [];
-
 		// Pad the input data with 0.5 at the beginning
 		const paddedData = Array(seq_length - 1).fill(0.5).concat(data);
-
 		// Create sequences starting from index seq_length - 1
 		for (let i = seq_length - 1; i <= paddedData.length - 1; i++) {
 			const sequence = [];
@@ -194,7 +239,6 @@
 			X.push(sequence);
 			y.push([paddedData[i + 1]]);
 		}
-
 		return [X, y];
 	}
 
@@ -207,18 +251,11 @@
 		const DataDates = data.map(entry => entry.date).reverse();
 		const DataActualPrices = data.map(entry => entry.actualPrice).reverse();
 		const DataPredictedPrices = data.map(entry => entry.predictedPrice).reverse();
-
-		console.log("DATA: " , DataDates, DataActualPrices, DataPredictedPrices)
-
 		//future dates selected
 		const FutureDataDates = futureData.map(entry => entry.date);
 		const FutureDataPredictedPrices = futureData.map(entry => entry.predictedPrice);
-		console.log("FutureData: " , FutureDataDates, FutureDataPredictedPrices)
 
 		const allPredictedPrices = [...DataPredictedPrices, ...FutureDataPredictedPrices];
-
-
-		
 
 		chartInstance = new Chart(ctx, {
 			type: 'line',
@@ -257,6 +294,14 @@
 		<input type="text" id="symbol" bind:value={symbol} placeholder="AAPL">
 	</div>
 	<div>
+		<label for="symbol">Stock Symbol:</label>
+		<select id="symbol" bind:value={symbol}>
+			{#each stock_symbols as { symbol, name }}
+				<option value={symbol}>{symbol} - {name}</option>
+			{/each}
+		</select>
+	</div>
+	<div>
 		<label for="start_date">Start Date:</label>
 		<input type="date" id="start_date" bind:value={start_date}>
 	</div>
@@ -269,6 +314,7 @@
 		<input type="number" id="future_days" bind:value={future_days} min="1" max="30">
 	</div>
 	<button on:click={() => predict(symbol, start_date, end_date, future_days)}>Predict Stock Price</button>
+	<div>{symbol}</div>
 	
 	
 	<canvas id="myChart"></canvas>

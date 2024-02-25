@@ -29,11 +29,9 @@
 	</nav>
 
 	<div class="corner">
-		<span>Google Colab
-		<a href="https://github.com/ThierryJones21/ml-stock-prediciton/tensorflow/python_stock_predictor.ipynb" target="_blank">
+		<a href="https://github.com/ThierryJones21/ml-stock-prediciton/blob/main/static/tensorflow/python_stock_predictor.ipynb" target="_blank">
 			<img src={python} alt="GitHub" />
 		</a>
-		</span>
 	</div>
 </header>
 

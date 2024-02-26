@@ -1,0 +1,80 @@
+/* Write your global styles here, in PostCSS syntax */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+	/* Reference name */
+	font-family: 'Anta', sans-serif;
+	/* For multiple files use commas, ex: url(), url(), ... */
+	src: url('/fonts/Anta-Regular.ttf');
+}
+
+
+/* NOTE: set your target theme name (ex: skeleton, wintry, modern, etc) */
+
+:root [data-theme='skeleton'] {
+	--theme-font-family-base: 'Anta', sans-serif;
+    --theme-font-family-heading: 'Anta', sans-serif;
+	/* --theme-rounded-base: 20px;
+	--theme-rounded-container: 4px;
+    --theme-font-color-base: #333; 
+    --theme-font-color-dark: #fff; 
+    --theme-rounded-base: 8px; 
+
+    --color-secondary-500: #FF5733;
+    --color-error-500: #FF3333; */
+}
+		
+html, body { @apply h-full;}
+body {
+	background-image:
+		radial-gradient(at 0% 0%, rgba(var(--color-secondary-500) / 0.33) 0px, transparent 50%),
+		radial-gradient(at 98% 1%, rgba(var(--color-error-500) / 0.33) 0px, transparent 50%);
+	background-attachment: fixed;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+h1 {
+
+}
+
+.btn {
+    /* Size (match base)  */
+    @apply text-base px-5 py-[9px];
+    /* Core */
+    @apply text-center whitespace-nowrap;
+    /* Flex Columns */
+    @apply inline-flex justify-center items-center space-x-2;
+    /* Hover */
+    @apply hover:brightness-110;
+    /* Transitions */
+    @apply transition-all active:scale-90;
+    /* Theme: Rounded */
+    @apply rounded-token;
+}
+
+.btn-filled-primary {
+    @apply bg-purple-500;
+}
+
+.anim-progress-bar {
+	transform-origin: 0% 50%;
+	animation: anim-progress-bar 2s infinite linear;
+}
+@keyframes anim-progress-bar {
+	0% { transform: translateX(50%) scaleX(0.5); }
+	50% { transform: translateX(0) scaleX(0.5); }
+	100% { transform: translateX(50%) scaleX(0.5); }
+}
+
+.text-base-token {
+	color: rgba(var(--theme-font-color-base));
+}
+.text-dark-token {
+	color: rgba(var(--theme-font-color-dark));
+}
+.text-token {
+	@apply text-base-token dark:text-dark-token;
+}

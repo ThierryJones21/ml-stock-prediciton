@@ -7,6 +7,9 @@
 	import * as tf from '@tensorflow/tfjs';
 	import { getStockData } from '$lib/stock-api'; 
 	const modelPath = '/tensorflow/model_v2/model.json';
+
+	import { Table } from '@skeletonlabs/skeleton';
+
 	
 	let chartInstance;
 
@@ -88,12 +91,6 @@
 	}
 	onMount(loadModel);
 
-	onMount(async () => {
-		if (typeof window !== 'undefined') {
-			const module = await import('svelte-apexcharts');
-			Chart_Apex = module.Chart_Apex;
-		}
-	});
 
   	async function predict(symbol, start_date, end_date, future_days) {
 		if (!model) {
@@ -287,109 +284,70 @@
 </script>
   
 <section>
-	<h1>Stock Prediction</h1>
-	
-	<div>
-		<label for="symbol">Stock Symbol:</label>
-		<input type="text" id="symbol" bind:value={symbol} placeholder="AAPL">
-	</div>
-	<div>
-		<label for="symbol">Stock Symbol:</label>
-		<select id="symbol" bind:value={symbol}>
-			{#each stock_symbols as { symbol, name }}
-				<option value={symbol}>{symbol} - {name}</option>
-			{/each}
-		</select>
-	</div>
-	<div>
-		<label for="start_date">Start Date:</label>
-		<input type="date" id="start_date" bind:value={start_date}>
-	</div>
-	<div>
-		<label for="end_date">End Date:</label>
-		<input type="date" id="end_date" bind:value={end_date}>
-	</div>
-	<div>
-		<label for="future_days">Future Days:</label>
-		<input type="number" id="future_days" bind:value={future_days} min="1" max="30">
-	</div>
-	<button on:click={() => predict(symbol, start_date, end_date, future_days)}>Predict Stock Price</button>
-	<div>{symbol}</div>
-	
-	
-	<canvas id="myChart"></canvas>
-	
-	<div class="tables-container">
-		<div >
-		<h3>Current Data</h3>
-			<table>
-				<thead>
-					<tr>
-						<th>Date</th>
-						<th>Actual Price</th>
-						<th>Predicted Price</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each data as entry}
-						<tr>
-							<td>{entry.date}</td>
-							<td>{entry.actualPrice}</td>
-							<td>{entry.predictedPrice}</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
+	<div class="sidebar-left">
+		<div>
+			<label for="symbol">Stock Symbol:</label>
+			<input type="text" id="symbol" bind:value={symbol} placeholder="AAPL">
 		</div>
-
-		<!-- Future Data Table -->
-		<div >
-			<h3>Future Predictions</h3>
-			<table>
-				<thead>
-					<tr>
-						<th>Date</th>
-						<th>Predicted Price</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each futureData as entry}
-						<tr>
-							<td>{entry.date}</td>
-							<td>{entry.predictedPrice}</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
+		<div>
+			<label for="symbol">Stock Symbol:</label>
+			<select id="symbol" bind:value={symbol}>
+				{#each stock_symbols as { symbol, name }}
+					<option value={symbol}>{symbol} - {name}</option>
+				{/each}
+			</select>
 		</div>
+		<div>
+			<label for="start_date">Start Date:</label>
+			<input type="date" id="start_date" bind:value={start_date}>
+		</div>
+		<div>
+			<label for="end_date">End Date:</label>
+			<input type="date" id="end_date" bind:value={end_date}>
+		</div>
+		<div>
+			<label for="future_days">Future Days:</label>
+			<input type="number" id="future_days" bind:value={future_days} min="1" max="30">
+		</div>
+		<div>
+			<button class= "btn btn-filled-primary" on:click={() => predict(symbol, start_date, end_date, future_days)}>Predict Stock Price</button>
+		</div>
+		<div>{symbol}</div>
 	</div>
-
-	<div id="chart"></div>
+	
+	<div class="main-content">
+		<canvas id="myChart"></canvas>
+	</div>
+	<div class="right-content">
+		<Table source={
+			{
+					head: ['Dates', 'actualPrice', 'predictedPrice', 'futurePrice'],
+					body: [
+							...data.map(({ date, actualPrice, predictedPrice }) => [date, actualPrice, predictedPrice, 'N/A']),
+							...futureData.map(({ date, predictedPrice }) => [date, 'N/A', 'N/A',predictedPrice]) // Adjust the structure according to your data
+							],
+					foot: ['Total', '', data.length + futureData.length]
+			}
+		} />
+	</div>
 </section>
 
 <style>
 	section {
 		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
+		flex-direction: row;
 		width: 100%;
 	}
+	.sidebar-left, .main-content, .right-content {
+		padding: 10px;
+	}
 
-	/* CSS for tables container */
-    .tables-container {
-        display: flex; /* Display tables side by side */
-    }
+	.sidebar-left, .right-content {
+		flex: 0.5; /* Adjust the flex value to make it less wide */
+	}
 
-    /* CSS for individual tables */
-    .tables-container > div {
-        flex: 1; /* Each table takes up equal width */
-        margin-right: 20px; /* Add some space between tables */
-    }
+	.main-content {
+		flex: 1; /* The other two columns will equally share the available space */
+	}
 
-    /* Additional CSS styling for tables and table elements if needed */
 </style>

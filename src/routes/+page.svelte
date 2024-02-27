@@ -22,6 +22,7 @@
         { symbol: 'AMZN', name: 'Amazon.com, Inc.' },
         { symbol: 'META', name: 'Meta Platforms, Inc.' },
         { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+		{ symbol: 'MCD', name: "McDonald's Corp"},
         { symbol: 'GOOG', name: 'Alphabet Inc.' },
         { symbol: 'BRK.B', name: 'Berkshire Hathaway Inc.' },
         { symbol: 'TSLA', name: 'Tesla, Inc.' },
@@ -82,10 +83,13 @@
 	let loading = false;
 	let chartData;
 	let symbol = 'ORCL'; // Default stock symbol
-	let start_date = '2023-09-10'; // Default start date
-	let end_date = '2024-02-01'; // Default end date
+	let today = new Date();
+	today.setMonth(today.getMonth() - 3); // Subtract six months
+  	let start_date = today.toISOString().split('T')[0];
+	let today_2 = new Date();
+	today_2.setDate(today_2.getDate() - 1); // Subtract one day
+	let end_date = today_2.toISOString().split('T')[0]; 	
 	let future_days = 7; // Default number of future days to predict
-
 	let data = [];
 	let futureData = [];
   

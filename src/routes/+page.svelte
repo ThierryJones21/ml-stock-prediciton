@@ -15,8 +15,7 @@
 	let chartInstance;
 	let inputDemo = '';
 	let inputChip = '';
-	let inputChipList = ['']
-	// ['Energy', 'Tech', 'Food', 'Utilities','Healthcare', 'Financials']
+	let inputChipList = ['Energy', 'Tech', 'Food', 'Utilities','Healthcare', 'Financials']
 
 	let stock_symbols = [
 		{ symbol: 'XOM', name: 'Exxon Mobil Corporation', sector: 'Energy' },
@@ -87,7 +86,19 @@
 		keywords: `${stock.symbol.toLowerCase()}, ${stock.name.toLowerCase()}, ${stock.sector.toLowerCase()}`, // Include symbol and name as keywords
 		meta: { company: stock.name }
 	}));
-	console.log(flavorOptions)
+
+	// let filteredOptions = [...flavorOptions]
+
+	// function filterOptions(){
+	// 	console.log(filteredOptions)
+	// 	filteredOptions = flavorOptions.filter(option =>
+	// 		inputChipList.some(chip =>
+	// 		option.keywords.toLowerCase().includes(chip.toLowerCase()) ||
+	// 		option.sector.toLowerCase().includes(chip.toLowerCase()) ||
+	// 		option.symbol.toLowerCase().includes(chip.toLowerCase())
+	// 		)
+	// 	);
+	// };
 
 
 	let Chart_Apex;
@@ -327,13 +338,19 @@
 			<!-- Replace the input/select with the Autocomplete component -->
 			<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto">
 				<div class="flex flex-col  w-full"> <!-- Container for stacking elements -->
-					<!-- <input class="input w-full mb-2" type="search" name="demo" bind:value={inputDemo} placeholder="Search..." > -->
-					<InputChip bind:input={inputChip} bind:value={inputChipList} name="chips" placeholder="Search"/>
+					<input class="input w-full mb-2" type="search" name="demo" bind:value={inputChip} placeholder="Search..." >
+					<!-- <InputChip 
+						bind:input={inputChip}
+						bind:value={inputChipList} 
+						name="chips" 
+						placeholder="Search"
+						on:input={filterOptions}
+						/> -->
+
 					<Autocomplete 
 						class="w-full" 
 						bind:input={inputChip} 
 						options={flavorOptions}
-						allowlist={inputChipList} 
 						on:selection={onFlavorSelection} 
 					/>
 				</div>

@@ -7,106 +7,32 @@
 	import * as tf from '@tensorflow/tfjs';
 	import { getStockData } from '$lib/stock-api'; 
 	const modelPath = '/tensorflow/model_v3/model.json';
-
-	import { Table, Autocomplete, InputChip, ProgressBar } from '@skeletonlabs/skeleton';
-  	// import StockSymbolSelect from '../components/StockSymbolSelect.svelte';
+	import { stock_symbols } from '$lib/stock-data.js';
+	import { Table, Autocomplete, ProgressBar } from '@skeletonlabs/skeleton';
 
 	
 	let chartInstance;
-	let inputDemo = '';
 	let inputChip = '';
-	let inputChipList = ['Energy', 'Tech', 'Food', 'Utilities','Healthcare', 'Financials']
-
-	let stock_symbols = [
-		{ symbol: 'XOM', name: 'Exxon Mobil Corporation', sector: 'Energy' },
-		{ symbol: 'CVX', name: 'Chevron Corporation', sector: 'Energy' },
-		{ symbol: 'EOG', name: 'EOG Resources, Inc.', sector: 'Energy' },
-		{ symbol: 'PTR', name: 'PetroChina Company Limited', sector: 'Energy' },
-		{ symbol: 'TOT', name: 'TotalEnergies SE', sector: 'Energy' },
-		{ symbol: 'BP', name: 'BP p.l.c.', sector: 'Energy' },
-		{ symbol: 'ENB', name: 'Enbridge Inc.', sector: 'Energy' },
-		{ symbol: 'SLB', name: 'Schlumberger Limited', sector: 'Energy' },
-		{ symbol: 'KMI', name: 'Kinder Morgan, Inc.', sector: 'Energy' },
-		{ symbol: 'COP', name: 'ConocoPhillips', sector: 'Energy' },
-		{ symbol: 'AAPL', name: 'Apple Inc.', sector: 'Tech' },
-		{ symbol: 'MSFT', name: 'Microsoft Corporation', sector: 'Tech' },
-		{ symbol: 'GOOGL', name: 'Alphabet Inc.', sector: 'Tech' },
-		{ symbol: 'AMZN', name: 'Amazon.com Inc.', sector: 'Tech' },
-		{ symbol: 'FB', name: 'Meta Platforms, Inc.', sector: 'Tech' },
-		{ symbol: 'TSLA', name: 'Tesla, Inc.', sector: 'Tech' },
-		{ symbol: 'NVDA', name: 'NVIDIA Corporation', sector: 'Tech' },
-		{ symbol: 'INTC', name: 'Intel Corporation', sector: 'Tech' },
-		{ symbol: 'ADBE', name: 'Adobe Inc.', sector: 'Tech' },
-		{ symbol: 'CRM', name: 'salesforce.com, inc.', sector: 'Tech' },
-		{ symbol: 'KO', name: 'The Coca-Cola Company', sector: 'Food' },
-		{ symbol: 'PEP', name: 'PepsiCo, Inc.', sector: 'Food' },
-		{ symbol: 'MCD', name: "McDonald's Corporation", sector: 'Food' },
-		{ symbol: 'NKE', name: 'NIKE, Inc.', sector: 'Food' },
-		{ symbol: 'SBUX', name: 'Starbucks Corporation', sector: 'Food' },
-		{ symbol: 'MDLZ', name: 'Mondelez International, Inc.', sector: 'Food' },
-		{ symbol: 'KHC', name: 'The Kraft Heinz Company', sector: 'Food' },
-		{ symbol: 'YUM', name: 'Yum! Brands, Inc.', sector: 'Food' },
-		{ symbol: 'DRI', name: 'Darden Restaurants, Inc.', sector: 'Food' },
-		{ symbol: 'GIS', name: 'General Mills, Inc.', sector: 'Food' },
-		{ symbol: 'NEE', name: 'NextEra Energy, Inc.', sector: 'Utilities' },
-		{ symbol: 'DUK', name: 'Duke Energy Corporation', sector: 'Utilities' },
-		{ symbol: 'SO', name: 'The Southern Company', sector: 'Utilities' },
-		{ symbol: 'D', name: 'Dominion Energy, Inc.', sector: 'Utilities' },
-		{ symbol: 'EXC', name: 'Exelon Corporation', sector: 'Utilities' },
-		{ symbol: 'AEP', name: 'American Electric Power Company, Inc.', sector: 'Utilities' },
-		{ symbol: 'SRE', name: 'Sempra Energy', sector: 'Utilities' },
-		{ symbol: 'PEG', name: 'Public Service Enterprise Group Incorporated', sector: 'Utilities' },
-		{ symbol: 'XEL', name: 'Xcel Energy Inc.', sector: 'Utilities' },
-		{ symbol: 'WEC', name: 'WEC Energy Group, Inc.', sector: 'Utilities' },
-		{ symbol: 'JNJ', name: 'Johnson & Johnson', sector: 'Healthcare' },
-		{ symbol: 'PFE', name: 'Pfizer Inc.', sector: 'Healthcare' },
-		{ symbol: 'UNH', name: 'UnitedHealth Group Incorporated', sector: 'Healthcare' },
-		{ symbol: 'MRK', name: 'Merck & Co., Inc.', sector: 'Healthcare' },
-		{ symbol: 'ABBV', name: 'AbbVie Inc.', sector: 'Healthcare' },
-		{ symbol: 'LLY', name: 'Eli Lilly and Company', sector: 'Healthcare' },
-		{ symbol: 'ABT', name: 'Abbott Laboratories', sector: 'Healthcare' },
-		{ symbol: 'AMGN', name: 'Amgen Inc.', sector: 'Healthcare' },
-		{ symbol: 'GILD', name: 'Gilead Sciences, Inc.', sector: 'Healthcare' },
-		{ symbol: 'BMY', name: 'Bristol-Myers Squibb Company', sector: 'Healthcare' },
-		{ symbol: 'JPM', name: 'JPMorgan Chase & Co.', sector: 'Financials' },
-		{ symbol: 'BAC', name: 'Bank of America Corporation', sector: 'Financials' },
-		{ symbol: 'WFC', name: 'Wells Fargo & Company', sector: 'Financials' },
-		{ symbol: 'C', name: 'Citigroup Inc.', sector: 'Financials' },
-		{ symbol: 'GS', name: 'The Goldman Sachs Group, Inc.', sector: 'Financials' },
-		{ symbol: 'MS', name: 'Morgan Stanley', sector: 'Financials' },
-		{ symbol: 'AXP', name: 'American Express Company', sector: 'Financials' },
-		{ symbol: 'BLK', name: 'BlackRock, Inc.', sector: 'Financials' },
-		{ symbol: 'USB', name: 'U.S. Bancorp', sector: 'Financials' },
-		{ symbol: 'PNC', name: 'The PNC Financial Services Group, Inc.', sector: 'Financials' }
-	];
+	let selectedSector = "all"; 
 
 	let flavorOptions = stock_symbols.map(stock => ({
 		label: `${stock.name} (${stock.symbol})`,
 		value: stock.symbol.toLowerCase(), // Convert symbol to lowercase for consistency
-		keywords: `${stock.symbol.toLowerCase()}, ${stock.name.toLowerCase()}, ${stock.sector.toLowerCase()}`, // Include symbol and name as keywords
+		keywords: `${stock.symbol.toLowerCase()}, ${stock.name.toLowerCase()}, ${stock.sector.toLowerCase()}`, 
 		meta: { company: stock.name }
 	}));
 
-	// let filteredOptions = [...flavorOptions]
-
-	// function filterOptions(){
-	// 	console.log(filteredOptions)
-	// 	filteredOptions = flavorOptions.filter(option =>
-	// 		inputChipList.some(chip =>
-	// 		option.keywords.toLowerCase().includes(chip.toLowerCase()) ||
-	// 		option.sector.toLowerCase().includes(chip.toLowerCase()) ||
-	// 		option.symbol.toLowerCase().includes(chip.toLowerCase())
-	// 		)
-	// 	);
-	// };
+	$: filteredFlavorOptions = selectedSector === "all" 
+        ? flavorOptions 
+        : flavorOptions.filter(option => {
+            const keywords = option.keywords.toLowerCase();
+            return keywords.includes(selectedSector.toLowerCase());
+        });
 
 
-	let Chart_Apex;
 	let model;
-	let options;
 	let loading = false;
-	let chartData;
-	let symbol = 'ORCL'; // Default stock symbol
+	let symbol = ''; // Default stock symbol
 	let today = new Date();
 	today.setMonth(today.getMonth() - 24); // Subtract six months
   	let start_date = today.toISOString().split('T')[0];
@@ -331,26 +257,35 @@
 	<div class="sidebar-left">
 		<div class="input-container">
 			<label for="symbol">Stock Symbol:</label>
-			<input type="text" id="symbol" bind:value={symbol} placeholder="AAPL">
+			<input type="text" id="symbol" bind:value={symbol} placeholder="Select a Stock/Enter your own">
 		</div>
+		<div class="input-container">
+            <label for="selectedSector">Sector:</label>
+			<div class="card w-full py-4 px-1">
+				<div class="grid grid-cols-4 gap-4 justify-center">
+					<button class="btn {selectedSector === 'all' ? 'bg-gradient-to-br variant-gradient-primary-secondary' : 'variant-ghost-surface '}" on:click={() => selectedSector = 'all'}>All</button>
+					<button class="btn {selectedSector === 'tech' ? 'variant-filled-primary' : 'variant-ghost-surface '}" on:click={() => selectedSector = 'tech'}>Tech</button>
+					<button class="btn {selectedSector === 'food' ? 'variant-filled-primary' : 'variant-ghost-surface '}" on:click={() => selectedSector = 'food'}>Food</button>
+					<button class="btn {selectedSector === 'energy' ? 'variant-filled-primary' : 'variant-ghost-surface '}" on:click={() => selectedSector = 'energy'}>Energy</button>
+					<div class="col-span-4 gap-4 flex justify-center">
+						<button class="btn {selectedSector === 'utilities' ? 'variant-filled-primary' : 'variant-ghost-surface '}" on:click={() => selectedSector = 'utilities'}>Utilities</button>
+						<button class="btn {selectedSector === 'healthcare' ? 'variant-filled-primary' : 'variant-ghost-surface '}" on:click={() => selectedSector = 'healthcare'}>Healthcare</button>
+						<button class="btn {selectedSector === 'financials' ? 'variant-filled-primary' : 'variant-ghost-surface '}" on:click={() => selectedSector = 'financials'}>Financials</button>
+					</div>
+				</div>
+			</div>
+						  
+        </div>
 		<div class="input-container">
 			<label for="symbol">Select Stock:</label>
 			<!-- Replace the input/select with the Autocomplete component -->
 			<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto">
 				<div class="flex flex-col  w-full"> <!-- Container for stacking elements -->
 					<input class="input w-full mb-2" type="search" name="demo" bind:value={inputChip} placeholder="Search..." >
-					<!-- <InputChip 
-						bind:input={inputChip}
-						bind:value={inputChipList} 
-						name="chips" 
-						placeholder="Search"
-						on:input={filterOptions}
-						/> -->
-
 					<Autocomplete 
 						class="w-full" 
 						bind:input={inputChip} 
-						options={flavorOptions}
+						options={filteredFlavorOptions}
 						on:selection={onFlavorSelection} 
 					/>
 				</div>
@@ -383,6 +318,7 @@
 	</div>
 		
 	<div class="right-content">
+		<div style="max-height: 75vh; overflow-y: auto;">
 		<Table
 			source={
 				data.length > 1 ? // Check if data is not empty
@@ -403,6 +339,7 @@
 				}
 			}
 		/>
+		</div>
 
 	</div>
 </section>
@@ -429,7 +366,6 @@
 		width: 150px;
 
 	}
-
 	.right-content{
 		margin-right: 3vw;
 		width: 200px;

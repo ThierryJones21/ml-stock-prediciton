@@ -2,20 +2,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind variants;
 
+html,
+body {
+	@apply h-full overflow-hidden;
+}
+
+/* gold-nouveau theme */
 @font-face {
-	/* Reference name */
-	font-family: 'Anta', sans-serif;
-	/* For multiple files use commas, ex: url(), url(), ... */
-	src: url('/fonts/Anta-Regular.ttf');
+	font-family: 'Quicksand';
+	src: url('/fonts/Quicksand.ttf');
+	font-display: swap;
 }
 
 
 /* NOTE: set your target theme name (ex: skeleton, wintry, modern, etc) */
 
 :root [data-theme='skeleton'] {
-	--theme-font-family-base: 'Anta', sans-serif;
-    --theme-font-family-heading: 'Anta', sans-serif;
+	/* --theme-font-family-base: 'Anta', sans-serif;
+    --theme-font-family-heading: 'Anta', sans-serif; */
 	/* --theme-rounded-base: 20px;
 	--theme-rounded-container: 4px;
     --theme-font-color-base: #333; 
@@ -26,7 +32,7 @@
     --color-error-500: #FF3333; */
 }
 		
-html, body { @apply h-full;}
+/* html, body { @apply h-full;}
 body {
 	background-image:
 		radial-gradient(at 0% 0%, rgba(var(--color-secondary-500) / 0.33) 0px, transparent 50%),
@@ -38,7 +44,7 @@ body {
 }
 h1 {
 
-}
+} */
 
 .btn {
     /* Size (match base)  */

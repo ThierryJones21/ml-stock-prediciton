@@ -8,10 +8,12 @@
 	import { getStockData } from '$lib/stock-api'; 
 	const modelPath = '/tensorflow/model_v2/model.json';
 
-	import { Table } from '@skeletonlabs/skeleton';
+	import { Table, Autocomplete } from '@skeletonlabs/skeleton';
+  	// import StockSymbolSelect from '../components/StockSymbolSelect.svelte';
 
 	
 	let chartInstance;
+	let inputDemo = 'AAPL';
 
 	let stock_symbols = [
         { symbol: 'MSFT', name: 'Microsoft Corporation' },
@@ -65,6 +67,14 @@
         { symbol: 'NOW', name: 'ServiceNow, Inc.' },
         { symbol: 'CAT', name: 'Caterpillar Inc.' }
     ];
+	let flavorOptions = stock_symbols.map(stock => ({
+		label: `${stock.name} (${stock.symbol})`,
+		value: stock.symbol.toLowerCase(), // Convert symbol to lowercase for consistency
+		keywords: `${stock.symbol.toLowerCase()}, ${stock.name.toLowerCase()}`, // Include symbol and name as keywords
+		meta: { company: stock.name }
+	}));
+	console.log(flavorOptions)
+
 
 	let Chart_Apex;
 	let model;
@@ -90,6 +100,11 @@
 	  }
 	}
 	onMount(loadModel);
+
+	function onFlavorSelection(event) {
+		symbol = event.detail.value.toUpperCase();
+	}
+
 
 
   	async function predict(symbol, start_date, end_date, future_days) {
@@ -145,7 +160,7 @@
 				const actual = y_actual[idx];
 				const predicted = y_pred_actual[idx];
 				if (actual !== undefined && predicted !== undefined) {
-					newData.push({ date, actualPrice: actual, predictedPrice: predicted });
+					newData.push({ date, actualPrice: actual, predictedPrice: predicted.toFixed(2) });
 				}
 			}
 			//update data for chart and table
@@ -184,7 +199,7 @@
 			let newfutureData;
 			newfutureData = future_dates_gen.map((date, idx) => ({
 				date: date.toISOString().split('T')[0],
-				predictedPrice : future_prices[idx][0] // Assuming each prediction is a single value
+				predictedPrice : future_prices[idx][0].toFixed(2) // Assuming each prediction is a single value
 			}));
 
 			futureData = newfutureData;
@@ -285,55 +300,75 @@
   
 <section>
 	<div class="sidebar-left">
-		<div>
+		<div class="input-container">
 			<label for="symbol">Stock Symbol:</label>
 			<input type="text" id="symbol" bind:value={symbol} placeholder="AAPL">
 		</div>
-		<div>
-			<label for="symbol">Stock Symbol:</label>
-			<select id="symbol" bind:value={symbol}>
-				{#each stock_symbols as { symbol, name }}
-					<option value={symbol}>{symbol} - {name}</option>
-				{/each}
-			</select>
+		<div class="input-container">
+			<label for="symbol">Select Stock:</label>
+			<!-- Replace the input/select with the Autocomplete component -->
+			<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto">
+				<div class="flex flex-col  w-full"> <!-- Container for stacking elements -->
+					<input class="input w-full mb-2" type="search" name="demo" bind:value={inputDemo} placeholder="Search..." />
+					<Autocomplete 
+						class="w-full" 
+						bind:input={inputDemo} 
+						options={flavorOptions} 
+						on:selection={onFlavorSelection} 
+					/>
+				</div>
+			</div>
+					
 		</div>
-		<div>
+		<div class="input-container">
 			<label for="start_date">Start Date:</label>
 			<input type="date" id="start_date" bind:value={start_date}>
 		</div>
-		<div>
+		<div class="input-container">
 			<label for="end_date">End Date:</label>
 			<input type="date" id="end_date" bind:value={end_date}>
 		</div>
-		<div>
+		<div class="input-container">
 			<label for="future_days">Future Days:</label>
-			<input type="number" id="future_days" bind:value={future_days} min="1" max="30">
+			<input type="number" id="future_days" bind:value={future_days} min="1" max="14">
 		</div>
-		<div>
-			<button class= "btn btn-filled-primary" on:click={() => predict(symbol, start_date, end_date, future_days)}>Predict Stock Price</button>
+		<div class="input-container">
+			<button class="btn btn-filled-primary" on:click={() => predict(symbol, start_date, end_date, future_days)}>Predict Stock Price</button>
 		</div>
-		<div>{symbol}</div>
 	</div>
+	
 	
 	<div class="main-content">
 		<canvas id="myChart"></canvas>
 	</div>
 	<div class="right-content">
-		<Table source={
-			{
-					head: ['Dates', 'actualPrice', 'predictedPrice', 'futurePrice'],
+		<Table
+			source={
+				data.length > 1 ? // Check if data is not empty
+				{
+					head: ['Dates', '$ Actual', ' $ Predicted'],
 					body: [
-							...data.map(({ date, actualPrice, predictedPrice }) => [date, actualPrice, predictedPrice, 'N/A']),
-							...futureData.map(({ date, predictedPrice }) => [date, 'N/A', 'N/A',predictedPrice]) // Adjust the structure according to your data
-							],
+					
+					...futureData.map(({ date, predictedPrice }) => [date, 'N/A', predictedPrice]),
+					...data.map(({ date, actualPrice, predictedPrice }) => [date, actualPrice, predictedPrice])
+					],
 					foot: ['Total', '', data.length + futureData.length]
+				}
+				: // If data is empty
+				{
+					head: ['Dates', 'actualPrice', 'predictedPrice'],
+					body: [[0, 0, 0]], // Display 0 values if data is empty
+					foot: ['Total', '', 0]
+				}
 			}
-		} />
+		/>
+
 	</div>
 </section>
 
 <style>
 	section {
+		margin-top: 3vw;
 		display: flex;
 		flex-direction: row;
 		width: 100%;
@@ -344,6 +379,34 @@
 
 	.sidebar-left, .right-content {
 		flex: 0.5; /* Adjust the flex value to make it less wide */
+	}
+
+	.sidebar-left{
+		margin-left: 3vw;
+		display: flex;
+    	flex-direction: column;
+		width: 150px;
+
+	}
+
+	.right-content{
+		margin-right: 3vw;
+		width: 200px;
+	}
+
+	.input-container {
+		padding: 10px 0; /* Adjust the padding as needed */
+		display: flex;
+		align-items: center;
+	}
+
+	label {
+		width: 75px; /* Adjust the width of the labels as needed */
+		padding-right: 10px; /* Adjust the spacing between label and input/select */
+	}
+
+	input, select, button {
+		flex: 1;
 	}
 
 	.main-content {

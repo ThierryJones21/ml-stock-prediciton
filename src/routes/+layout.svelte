@@ -9,7 +9,6 @@
 
 <AppShell>
 	<svelte:fragment slot="header">
-		<div class="light"><LightSwitch /></div>
 		<div class="title">
 			<h1 class="h1">LSTM ML Prediction model</h1>
 		</div>
@@ -31,14 +30,16 @@
 
 <style>
 	.title {
+		margin-top: 5vh;
 		display: flex;
 		justify-content: center;
 	}
+	.title .h1{
+	}
 	.light{
-		display: flex;
-		margin-top: 5vh;
-		margin-right: 5vh;
-		justify-content: right;
+		align-items: center;
+		/* margin-left: 50vh; */
+
 	}
 	 .footer img {
 		width: 2em;

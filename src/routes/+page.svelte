@@ -13,7 +13,7 @@
 
 	
 	let chartInstance;
-	let inputDemo = 'AAPL';
+	let inputDemo = '';
 
 	let stock_symbols = [
         { symbol: 'MSFT', name: 'Microsoft Corporation' },

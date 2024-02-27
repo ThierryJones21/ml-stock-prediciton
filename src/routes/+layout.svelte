@@ -21,7 +21,7 @@
 				<img src={github} alt="SvelteKit" />
 			</a>
 			and Google Colab for this project
-			<a href="https://github.com/ThierryJones21/ml-stock-prediciton/blob/main/static/tensorflow/python_stock_predictor.ipynb" target="_blank">
+			<a href="https://colab.research.google.com/drive/1ZxWSM0klQ5dlHQtwspzn_skuMLrjyh0y#scrollTo=ZiEESH4HcI-z" target="_blank">
 				<img src={python} alt="GitHub" />
 			</a>
 		</div>

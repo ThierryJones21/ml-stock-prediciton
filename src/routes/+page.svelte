@@ -43,6 +43,22 @@
 	let data = [];
 	let futureData = [];
 	let tableData =[];
+
+	let today_new = new Date();
+    let tenYearsAgo = new Date();
+    tenYearsAgo.setFullYear(today_new.getFullYear() - 10);
+
+    $: minStartDate = formatDate(tenYearsAgo);
+    $: maxStartDate = formatDate(today_new);
+    $: minEndDate = minStartDate;
+    $: maxEndDate = maxStartDate;
+
+    function formatDate(date) {
+        let yyyy = date.getFullYear();
+        let mm = String(date.getMonth() + 1).padStart(2, '0');
+        let dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
   
 	async function loadModel() {
 	  try {
@@ -260,11 +276,13 @@
 </script>
   
 <section>
-	<div class="sidebar-left" style="max-height: 75vh; overflow-y: auto;">
+		<!-- <div class="{['sidebar-left', data.length > 1 ? 'sidebar-left-override' : '']}"> -->
+		<div class="sidebar-left">
 		<div class="input-container">
 			<label for="symbol">Stock Symbol:</label>
-			<input type="text" id="symbol" bind:value={symbol} placeholder="Select a Stock/Enter your own">
-		</div>
+			<input type="text" id="symbol" bind:value={symbol} placeholder=" Select/Enter Stock">
+
+		</div>			
 		<div class="input-container">
             <label for="selectedSector">Sector:</label>
 			<div class="card w-full py-2 px-0.5">
@@ -284,7 +302,7 @@
 			<!-- Replace the input/select with the Autocomplete component -->
 			<div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto">
 				<div class="flex flex-col  w-full"> <!-- Container for stacking elements -->
-					<input class="input w-full mb-2" type="search" name="demo" bind:value={inputChip} placeholder="Search..." >
+					<input class="input w-full mb-2" type="search" name="demo" bind:value={inputChip} placeholder=" Search..." >
 					<Autocomplete 
 						class="w-full" 
 						bind:input={inputChip} 
@@ -297,15 +315,11 @@
 		</div>
 		<div class="input-container">
 			<label for="start_date">Start Date:</label>
-			<input type="date" id="start_date" bind:value={start_date}>
+			<input type="date" id="start_date" bind:value={start_date} min={minStartDate} max={maxStartDate}>
 		</div>
 		<div class="input-container">
 			<label for="end_date">End Date:</label>
-			<input type="date" id="end_date" bind:value={end_date}>
-		</div>
-		<div class="input-container">
-			<label for="future_days">Future Days:</label>
-			<input type="number" id="future_days" bind:value={future_days} min="1" max="14">
+			<input type="date" id="end_date" bind:value={end_date} min={minEndDate} max={maxEndDate}>
 		</div>
 		<div class="input-container">
 			<button class="btn btn-filled-primary" style="color: white;"on:click={() => predict(symbol, start_date, end_date, future_days)}>Predict Stock Price</button>
@@ -378,16 +392,28 @@
 	}
 
 	.sidebar-left, .right-content {
-		flex: 0.5; /* Adjust the flex value to make it less wide */
+		flex: 0.5; 
 	}
 
 	.sidebar-left{
 		margin-left: 3vw;
 		display: flex;
     	flex-direction: column;
+		max-height: 75vh; 
+		overflow-y: auto;
 		width: 150px;
 
 	}
+	/* .sidebar-left-override{
+		flex: 3;
+		margin-left: 50vw;
+		display: flex;
+    	flex-direction: column;
+		max-height: 75vh; 
+		overflow-y: auto;
+		justify-content: center; 
+		width: 100%; 
+	} */
 	.right-content{
 		margin-right: 3vw;
 		width: 200px;
@@ -404,7 +430,7 @@
 		padding-right: 10px; /* Adjust the spacing between label and input/select */
 	}
 
-	input, select, button {
+	input, button {
 		flex: 1;
 	}
 

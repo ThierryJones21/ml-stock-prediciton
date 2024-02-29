@@ -19,8 +19,6 @@
 		// Defines which side of your trigger the popup will appear
 		placement: 'bottom',
 	};
-			
-
 </script>
 
 <AppShell>
@@ -28,7 +26,7 @@
 		<div class="title">
 			<button style="margin-right: 2vw; max-width: 10vw;" class="btn variant-ghost-success" use:popup={popupFeatured}>Need Help?</button>
 			<div class="card p-4 w-72 shadow-xl" data-popup="popupFeatured">
-				<p class="mb-2 font-bold">Stock Symbols Lookup</p> 
+				<p class="mb-2 font-bold">Stock Symbol Lookup</p> 
 				<p>Yahoo Finance Canada's lookup tool gives you access to any company's stock symbol to enter into the search bar.</p> 
 				<a class="mt-2 btn variant-soft w-full" href="https://ca.finance.yahoo.com/lookup/" target="_blank">Find a Symbol</a>
 			</div>

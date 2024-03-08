@@ -8,7 +8,8 @@
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-	import { popup } from '@skeletonlabs/skeleton';
+	import { popup, TabGroup, TabAnchor } from '@skeletonlabs/skeleton';
+	import { page } from '$app/stores';
 
 	const popupFeatured = {
 		// Represents the type of event that opens/closed the popup
@@ -23,6 +24,10 @@
 <AppShell>
 	<svelte:fragment slot="header">
 		<div class="title">
+			<TabGroup>
+				<TabAnchor href="/" selected={$page.url.pathname === '/'}>Home</TabAnchor>
+				<TabAnchor href="/bot-trader" selected={$page.url.pathname === '/bot-trader'}>Trading Bot</TabAnchor>
+			</TabGroup>
 			<div class="card p-4 w-72 shadow-xl" data-popup="popupFeatured">
 				<p class="mb-2 font-bold">Stock Symbol Lookup</p> 
 				<p>Yahoo Finance Canada's lookup tool gives you access to any company's stock symbol to enter into the search bar.</p> 
